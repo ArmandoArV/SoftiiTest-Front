@@ -173,6 +173,11 @@ const distributeTips = async () => {
     if (response.ok) {
       console.log(result.message); // Success message
       await fetchPayments(); // Fetch payments after distributing tips
+
+      // Reset values after distribution
+      valueFromMoneyNumpad.value = "";
+      numberOfPeople.value = "";
+      selectedPaymentMethod.value = null; // Reset selected payment method
     } else {
       console.error(result.message); // Error message
     }
