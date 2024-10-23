@@ -15,8 +15,7 @@ interface IPay {
   paymentIcon: string;
 }
 
-interface ITip {
-  idTip: number;
+interface IPayment {
   paymentMethod: number;
   amount: string;
 }
@@ -32,6 +31,9 @@ const numberOfPeople = ref<string>("");
 const paymentMethods = ref<IPay[]>([]);
 const selectedPaymentMethod = ref<number | null>(null); // Track selected payment method
 
+// Reactive state to hold the fetched payments
+const payments = ref<IPayment[]>([]);
+
 // Fetching payment methods from the API
 const fetchPaymentMethods = async () => {
   try {
@@ -46,10 +48,11 @@ const fetchPaymentMethods = async () => {
           paymentIcon = cardImage;
           break;
         case 2:
-          paymentIcon = paypalIcon;
+          paymentIcon = cashIcon;
+
           break;
         case 3:
-          paymentIcon = cashIcon;
+          paymentIcon = paypalIcon;
           break;
         default:
           paymentIcon = "path/to/default-icon.png"; // Fallback to a default icon
@@ -62,8 +65,27 @@ const fetchPaymentMethods = async () => {
   }
 };
 
-// Call the fetch function to get payment methods
+const fetchPayments = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/tips`);
+    const rawData = await response.json(); // Fetch the raw data
+    console.log("Raw payments data:", rawData); // Log raw data
+
+    // Map the fetched data to the IPayment structure
+    payments.value = rawData.map((payment: any) => ({
+      paymentMethod: payment.PaymentMethod_idPaymentMethod, // Map correctly
+      amount: payment.amount,
+    }));
+
+    console.log("Payments fetched:", payments.value); // Log mapped payments
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+  }
+};
+
+// Call the fetch function to get payment methods and payments
 fetchPaymentMethods();
+fetchPayments();
 
 // Function to handle the emitted input value (total tip)
 const handleInputValue = (value: string) => {
@@ -74,6 +96,7 @@ const handleInputValue = (value: string) => {
 const handlePeopleCount = (value: string) => {
   numberOfPeople.value = value; // Store the number of people
 };
+
 const finalCount = computed(() => {
   const totalTip = parseFloat(valueFromMoneyNumpad.value);
   const peopleCount = parseInt(numberOfPeople.value, 10);
@@ -100,6 +123,7 @@ const distributeTips = async () => {
     console.error("Number of people must be greater than zero.");
     return;
   }
+
   const newTip = {
     amount: valueFromMoneyNumpad.value,
     paymentMethod: {
@@ -132,8 +156,6 @@ const distributeTips = async () => {
       return;
     }
 
-    console.log("Tip added successfully:", addedTip.id);
-
     // Step 2: Distribute tips using the added Tip ID
     const response = await fetch(`${BASE_URL}/tips/distribute`, {
       method: "POST",
@@ -158,29 +180,6 @@ const distributeTips = async () => {
     console.error("Error distributing tips:", error);
   }
 };
-
-interface IPayment {
-  paymentMethod: number; // ID of the payment method
-  amount: string; // Amount associated with the payment
-}
-
-// Reactive state to hold the fetched payments
-const payments = ref<IPayment[]>([]);
-
-// Fetch payment data from the /tips endpoint
-const fetchPayments = async () => {
-  try {
-    const response = await fetch(`${BASE_URL}/tips`);
-    const data: IPayment[] = await response.json();
-    payments.value = data; // Store fetched payments
-    console.log("Payments fetched:", payments.value);
-  } catch (error) {
-    console.error("Error fetching payments:", error);
-  }
-};
-
-// Call the fetch function to get payments
-fetchPayments();
 </script>
 
 <template>
@@ -235,7 +234,7 @@ fetchPayments();
       </div>
       <div class="right">
         <div class="rightTop">
-          <h2 class="rightTitle">Propinas</h2>
+          <h2 class="rightTitle">Pagos</h2>
         </div>
         <div v-for="(payment, index) in payments" :key="index">
           <Payment
@@ -243,8 +242,8 @@ fetchPayments();
               payment.paymentMethod === 1
                 ? cardImage
                 : payment.paymentMethod === 2
-                ? paypalIcon
-                : cashIcon
+                ? cashIcon
+                : paypalIcon
             "
             :paymentMethod="payment.paymentMethod"
             :amount="payment.amount"
