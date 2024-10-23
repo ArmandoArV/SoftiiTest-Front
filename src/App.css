@@ -16,7 +16,6 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: aliceblue;
   width: 20em;
 }
 

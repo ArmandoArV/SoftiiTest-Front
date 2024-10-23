@@ -1,0 +1,24 @@
+.paymentContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 15em;
+  height: 7em;
+  border: 1px solid var(--color-border);
+  margin: 1em;
+  border-radius: 1em;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  transition: border 0.3s; /* Smooth transition */
+}
+
+.image {
+  width: 5em;
+  height: 5em;
+  object-fit: cover;
+}
+
+/* Selected state styles */
+.paymentContainer.selected {
+  border: 2px solid #ed6a5a; /* Change border color for selected state */
+}
