@@ -3,6 +3,7 @@ import "./App.css";
 import NumPad from "./components/NumPad/NumPad.vue";
 import PaymentMethod from "./components/PaymentMethod/PaymentMethod.vue";
 import { ref, computed } from "vue";
+import Payment from "./components/Payment/Payment.vue";
 
 import cardImage from "./assets/card.png";
 import paypalIcon from "./assets/paypal.png";
@@ -12,6 +13,12 @@ interface IPay {
   idPaymentMethod: number;
   methodName: string;
   paymentIcon: string;
+}
+
+interface ITip {
+  idTip: number;
+  paymentMethod: number;
+  amount: string;
 }
 
 // Define the base URL as a constant
@@ -33,9 +40,7 @@ const fetchPaymentMethods = async () => {
 
     // Map fetched data to include image paths
     paymentMethods.value = data.map((method) => {
-      // Use a switch or if-else to assign the correct image based on the method ID
       let paymentIcon = "";
-
       switch (method.idPaymentMethod) {
         case 1:
           paymentIcon = cardImage;
@@ -47,15 +52,10 @@ const fetchPaymentMethods = async () => {
           paymentIcon = cashIcon;
           break;
         default:
-          paymentIcon = "path/to/default-icon.png"; // Fallback to a default icon if no mapping found
+          paymentIcon = "path/to/default-icon.png"; // Fallback to a default icon
       }
-
-      return {
-        ...method,
-        paymentIcon, // Assign the correct icon
-      };
+      return { ...method, paymentIcon };
     });
-
     console.log("Payment methods fetched:", paymentMethods.value);
   } catch (error) {
     console.error("Error fetching payment methods:", error);
@@ -74,8 +74,6 @@ const handleInputValue = (value: string) => {
 const handlePeopleCount = (value: string) => {
   numberOfPeople.value = value; // Store the number of people
 };
-
-// Computed property to calculate the final count per person
 const finalCount = computed(() => {
   const totalTip = parseFloat(valueFromMoneyNumpad.value);
   const peopleCount = parseInt(numberOfPeople.value, 10);
@@ -90,8 +88,99 @@ const finalCount = computed(() => {
 
 // Function to select a payment method
 const selectPaymentMethod = (id: number) => {
-  selectedPaymentMethod.value = id; // Set to the clicked method's ID
+  selectedPaymentMethod.value = id;
 };
+
+const distributeTips = async () => {
+  const shiftId = 1; // DEFAULT SHIFT ID
+  const totalTips = parseFloat(valueFromMoneyNumpad.value);
+  const employeeCount = parseInt(numberOfPeople.value, 10);
+
+  if (employeeCount <= 0) {
+    console.error("Number of people must be greater than zero.");
+    return;
+  }
+  const newTip = {
+    amount: valueFromMoneyNumpad.value,
+    paymentMethod: {
+      idPaymentMethod: selectedPaymentMethod.value, // Ensure this is not null
+    },
+    shift: {
+      idShift: 1, // Ensure this is not null
+    },
+  };
+
+  console.log({
+    amount: valueFromMoneyNumpad.value,
+    paymentMethod: selectedPaymentMethod.value,
+    shiftId: shiftId,
+  });
+
+  try {
+    // Step 1: Add tip
+    const addTipResponse = await fetch(`${BASE_URL}/tips/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newTip),
+    });
+
+    const addedTip = await addTipResponse.json();
+    if (!addTipResponse.ok) {
+      console.error(addedTip.message); // Handle error adding tip
+      return;
+    }
+
+    console.log("Tip added successfully:", addedTip.id);
+
+    // Step 2: Distribute tips using the added Tip ID
+    const response = await fetch(`${BASE_URL}/tips/distribute`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        shiftId,
+        totalTips,
+        employeeCount,
+        Tip_idTip: addedTip.id, // Use the newly added tip ID
+      }),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      console.log(result.message); // Success message
+    } else {
+      console.error(result.message); // Error message
+    }
+  } catch (error) {
+    console.error("Error distributing tips:", error);
+  }
+};
+
+interface IPayment {
+  paymentMethod: number; // ID of the payment method
+  amount: string; // Amount associated with the payment
+}
+
+// Reactive state to hold the fetched payments
+const payments = ref<IPayment[]>([]);
+
+// Fetch payment data from the /tips endpoint
+const fetchPayments = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/tips`);
+    const data: IPayment[] = await response.json();
+    payments.value = data; // Store fetched payments
+    console.log("Payments fetched:", payments.value);
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+  }
+};
+
+// Call the fetch function to get payments
+fetchPayments();
 </script>
 
 <template>
@@ -102,7 +191,7 @@ const selectPaymentMethod = (id: number) => {
           <div class="tipContainer">
             <p class="tipTitle">Total de propinas</p>
             <div class="tipValueContainer">
-              <span class="tipValue">{{ valueFromMoneyNumpad }}</span>
+              <span class="tipValue">$ {{ valueFromMoneyNumpad }}</span>
             </div>
           </div>
         </div>
@@ -144,8 +233,42 @@ const selectPaymentMethod = (id: number) => {
           @peopleCount="handlePeopleCount"
         />
       </div>
-      <div class="right">aaa</div>
+      <div class="right">
+        <div class="rightTop">
+          <h2 class="rightTitle">Propinas</h2>
+        </div>
+        <div v-for="(payment, index) in payments" :key="index">
+          <Payment
+            :image="
+              payment.paymentMethod === 1
+                ? cardImage
+                : payment.paymentMethod === 2
+                ? paypalIcon
+                : cashIcon
+            "
+            :paymentMethod="payment.paymentMethod"
+            :amount="payment.amount"
+          />
+        </div>
+      </div>
     </div>
-    <div class="mainBottom"></div>
+    <div class="mainBottom">
+      <div class="bottomLeft">
+        <div class="bottomLeftTop">
+          <p class="totalTips">
+            Total de propinas: <span>{{ finalCount }}</span>
+          </p>
+          <p class="remainingTips">
+            Restante por pagar: <span>{{ valueFromMoneyNumpad }}</span>
+          </p>
+        </div>
+        <div class="bottomLeftBottom"></div>
+      </div>
+      <div class="bottomRight">
+        <button @click="distributeTips">
+          Pagar {{ finalCount }} en Propinas
+        </button>
+      </div>
+    </div>
   </main>
 </template>

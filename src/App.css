@@ -17,6 +17,7 @@ main {
   justify-content: center;
   align-items: center;
   width: 20em;
+  margin-right: 5em;
 }
 
 .right {
@@ -25,8 +26,8 @@ main {
   width: 20em;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  margin-right: 5em;
+  margin-left: 5em;
 }
 
 .middle {
@@ -42,8 +43,8 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 5em;
-  width: 5em;
+  height: 3em;
+  width: 3em;
 }
 
 .cardImg {
@@ -51,6 +52,155 @@ main {
   width: 100%;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.totalTips {
+  font-size: 2.5rem;
+  color: #ed6a5a;
+  font-weight: bold;
+}
+
+.tipContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 1em;
+}	
+
+.tipTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ed6a5a;
+}
+
+.tipValueContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #ed6b5a86;
+  height: 5em;
+  border-radius: 10px;
+}	
+
+.tipValueContainer span {
+  font-size: 2rem;
+  color: #ed6a5a;
+  font-weight: bold;
+  margin-left: 1em;
+}
+
+.mainBottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 20%;
+}
+
+.leftBottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 20em; /* Adjust as needed */
+}
+
+.leftMedium {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 20em; /* Adjust as needed */
+  font-size: 1.5rem;
+
+}
+
+.peopleTitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}	
+
+.peopleAmountContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.perPerson, .finalCount{
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ed6a5a;
+}
+.amountContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  width: 5em; 
+  height: 3em;
+  border-radius: 20px;
+}
+
+.paymentTitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.paymentMethodsContainer {
+  display: grid; /* Use CSS Grid layout */
+  grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+  gap: 16px; /* Adjust space between items */
+  width: 100%; /* Make sure it takes full width */
+}
+
+.paymentMethod {
+  border: 1px solid #ccc; /* Example border */
+  padding: 10px; /* Example padding */
+  border-radius: 4px; /* Optional rounded corners */
+  text-align: center; /* Center text */
+}
+
+.bottomLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50em; /* Adjust width as needed */
+}
+
+.bottomRight {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 20em; /* Adjust width as needed */
+}
+
+.bottomRight button {
+  background-color: #ed6a5a;
+  color: white;
+  font-size: 1.5rem;
+  padding: 0.5em 1em;
+  border: none;
+  border-radius: 1em;
+  cursor: pointer;
+  width: 100%;
+}
+
+.totalTips span {
+  font-size: 2.5rem;
+  color: #ed6a5a;
+  font-weight: bold;
+}
+
+.remainingTips {
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 @media (min-width: 1024px) {
