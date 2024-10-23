@@ -49,7 +49,6 @@ const fetchPaymentMethods = async () => {
           break;
         case 2:
           paymentIcon = cashIcon;
-
           break;
         case 3:
           paymentIcon = paypalIcon;
@@ -83,7 +82,7 @@ const fetchPayments = async () => {
   }
 };
 
-// Call the fetch function to get payment methods and payments
+// Call the fetch function to get payment methods and payments initially
 fetchPaymentMethods();
 fetchPayments();
 
@@ -173,12 +172,18 @@ const distributeTips = async () => {
     const result = await response.json();
     if (response.ok) {
       console.log(result.message); // Success message
+      await fetchPayments(); // Fetch payments after distributing tips
     } else {
       console.error(result.message); // Error message
     }
   } catch (error) {
     console.error("Error distributing tips:", error);
   }
+};
+
+// New method to handle the button click
+const handleDistributeTips = () => {
+  distributeTips(); // Call distributeTips directly
 };
 </script>
 
@@ -236,7 +241,13 @@ const distributeTips = async () => {
         <div class="rightTop">
           <h2 class="rightTitle">Pagos</h2>
         </div>
-        <div v-for="(payment, index) in payments" :key="index">
+        <div class="rightBottom" v-if="payments.length === 0">Sin Pagos</div>
+        <div
+          class="rightBottom"
+          v-else
+          v-for="(payment, index) in payments"
+          :key="index"
+        >
           <Payment
             :image="
               payment.paymentMethod === 1
@@ -264,7 +275,7 @@ const distributeTips = async () => {
         <div class="bottomLeftBottom"></div>
       </div>
       <div class="bottomRight">
-        <button @click="distributeTips">
+        <button @click="handleDistributeTips">
           Pagar {{ finalCount }} en Propinas
         </button>
       </div>

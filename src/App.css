@@ -22,13 +22,29 @@ main {
 
 .right {
   height: 100%;
-  background-color: aliceblue;
   width: 20em;
   display: flex;
   flex-direction: column;
   margin-right: 5em;
   margin-left: 5em;
 }
+
+.rightTop{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 10%;
+}
+
+.rightBottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+}
+
+
 
 .middle {
   display: flex;
