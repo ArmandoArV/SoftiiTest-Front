@@ -1,27 +1,47 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineEmits } from "vue";
 import "./style.css";
 
-// Reactive state to manage input and symbol status
-const currentInput = ref<string>("");
-const displaySymbol = ref<string>("$"); // Initially, the money symbol
-const isSelecting = ref<boolean>(false); // Track if a button is selected
+// Emits to send data back to the parent component
+const emit = defineEmits<{
+  (event: "inputValue", value: string): void;
+  (event: "peopleCount", value: string): void;
+}>();
 
-// Function to handle number button clicks
+const currentInput = ref<string>("");
+const displaySymbol = ref<string>("$");
+const isSelecting = ref<boolean>(false);
+const inputStage = ref<number>(1); // 1 for total tip, 2 for number of people
+
 const handleNumberClick = (num: string) => {
   currentInput.value += num;
-  isSelecting.value = true; // Set selecting state to true
+  isSelecting.value = true;
 };
 
-// Function to remove the last character (backspace)
 const backspaceInput = () => {
   currentInput.value = currentInput.value.slice(0, -1);
 };
 
-// Function to handle the confirm button
 const handleConfirm = () => {
-  displaySymbol.value = "#"; // Change to '#' after confirmation
-  isSelecting.value = false; // Reset selecting state after confirmation
+  switch (inputStage.value) {
+    case 1:
+      emit("inputValue", currentInput.value);
+      displaySymbol.value = "#";
+      currentInput.value = "";
+      inputStage.value = 2;
+      break;
+
+    case 2:
+      emit("peopleCount", currentInput.value);
+      currentInput.value = "";
+      displaySymbol.value = "$"; 
+      isSelecting.value = false;
+      inputStage.value = 1;
+      break;
+
+    default:
+      console.error("Unexpected input stage:", inputStage.value);
+  }
 };
 </script>
 
@@ -33,8 +53,6 @@ const handleConfirm = () => {
         <img src="../../assets/backspace.png" class="imgFit" />
       </button>
     </div>
-
-    <!-- Numpad -->
     <div class="numpad">
       <button
         class="element-button"

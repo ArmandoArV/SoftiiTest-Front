@@ -1,7 +1,13 @@
 main {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: 100vh;
+}
+
+.mainTop {
+  display: flex;
+  flex-direction: row;
+  height: 80%;
 }
 
 .left {
@@ -31,6 +37,21 @@ main {
   align-items: center;
   height: 100%;
   width: 60%;
+}
+
+.cardImgContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5em;
+  width: 5em;
+}
+
+.cardImg {
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 @media (min-width: 1024px) {
